@@ -20,7 +20,5 @@ public class Employee {
     @Size(min = 3, max = 20)
     private String name;
 
-    public Employee(@Size(min = 3, max = 20) String name) {
-        this.name = name;
-    }
+    public Employee(@Size(min = 3, max = 20) String name) { this.name = name; }
 }
