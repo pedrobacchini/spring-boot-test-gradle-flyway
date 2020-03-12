@@ -1,0 +1,32 @@
+.sass-cache/
+logs/
+build/
+sass/gradle
+gradle/
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+tmp/
+*.gradle/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+
+### IntelliJ IDEA ###
+*.idea
+!.idea/codeStyles/*
+*.iws
+*.iml
+*.ipr
+out/
+
+### NetBeans ###
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
