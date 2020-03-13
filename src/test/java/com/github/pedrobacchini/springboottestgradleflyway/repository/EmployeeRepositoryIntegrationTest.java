@@ -1,0 +1,73 @@
+package com.github.pedrobacchini.springboottestgradleflyway.repository;
+
+import com.github.pedrobacchini.springboottestgradleflyway.domain.Employee;
+import com.github.pedrobacchini.springboottestgradleflyway.util.EmployeeUtilTest;
+import org.assertj.core.api.AssertionsForInterfaceTypes;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.test.context.ActiveProfiles;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
+@DataJpaTest
+@ActiveProfiles("test")
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+class EmployeeRepositoryIntegrationTest {
+
+    @Autowired
+    private TestEntityManager entityManager;
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Test
+    public void whenFindByName_thenReturnEmployee() {
+        Employee alex = EmployeeUtilTest.getAlex();
+        entityManager.persistAndFlush(alex);
+
+        Employee found = employeeRepository.findByName(alex.getName()).orElse(null);
+        assertThat(found).isNotNull();
+        assertThat(found.getName()).isEqualTo(alex.getName());
+    }
+
+    @Test
+    public void whenInvalidName_thenReturnNull() {
+        Optional<Employee> fromDb = employeeRepository.findByName("doesNotExist");
+        assertThat(fromDb.isPresent()).isFalse();
+    }
+
+    @Test
+    public void whenFindById_thenReturnEmployee() {
+        Employee bob = EmployeeUtilTest.getBob();
+        entityManager.persistAndFlush(bob);
+
+        Employee fromDb = employeeRepository.findById(bob.getId()).orElse(null);
+        assertThat(fromDb).isNotNull();
+        assertThat(fromDb.getName()).isEqualTo(bob.getName());
+    }
+
+    @Test
+    public void whenInvalidId_thenReturnNull() {
+        Optional<Employee> fromDb = employeeRepository.findById(-1L);
+        assertThat(fromDb.isPresent()).isFalse();
+    }
+
+    @Test
+    public void givenListOfEmployees_whenFinAll_thenReturnAllEmployees() {
+        List<Employee> allEmployees = EmployeeUtilTest.getEmployees();
+        allEmployees.forEach(entityManager::persist);
+        entityManager.flush();
+
+        List<Employee> savedEmployees = employeeRepository.findAll();
+
+        AssertionsForInterfaceTypes.assertThat(savedEmployees).hasSize(3).extracting(Employee::getName)
+                .containsExactlyElementsOf((Iterable<String>) () -> allEmployees.stream()
+                        .map(Employee::getName).iterator());
+    }
+}
